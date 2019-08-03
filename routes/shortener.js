@@ -12,7 +12,7 @@ const shortenUrl = async (req, res) => {
         if (shortened) return res.status(409).send({ message: '이미 존재하는 url 입니다 😭' });
 
         await Shortener.create(value);
-        res.send(`${req.protocol}://${req.get('host')}/${to}`);
+        res.send({ message: `${req.protocol}://${req.get('host')}/${to}` });
     } catch (error) {
         res.send({ message: error.message });
     }
