@@ -1,9 +1,11 @@
 import express from 'express';
 import shortener from './shortener';
+import { hasHubotToken } from '../library/middleware';
+
 const route = express.Router();
 
-route.post('/shorten', shortener.shortenUrl);
+route.post('/shorten', hasHubotToken, shortener.shortenUrl);
 route.get('/:path', shortener.toShortenedUrl);
-route.delete('/:path', shortener.deleteShrotenedUrl);
+route.delete('/:path', hasHubotToken, shortener.deleteShrotenedUrl);
 
 export default route;
