@@ -4,23 +4,28 @@ const { Shortener } = Model;
 
 const shortenUrl = async (req, res) => {
     try {
-        const { value, error } = joi.validateUrl(req.body)
+        const { value, error } = joi.validateUrl(req.body);
         if (error) return res.status(400).send(error);
-        const shortened = await Shortener.create(value);
-        res.send(shortened);
+
+        const shortened = await Shortener.findOne({ where: { to: value.to } });
+        if (shortened) return res.status(409).send({ message: '이미 존재하는 url 입니다 😭' });
+
+        const newShortened = await Shortener.create(value);
+        res.send(newShortened);
     } catch (error) {
-        res.send(error)
+        res.send({ message: error.message });
     }
 }
 
 const toShortenedUrl = async (req, res) => {
     try {
         const { path } = req.params;
-        const { from } = await Shortener.findOne({ where: { to: path } });
-        if (!from) return res.status(404);
-        res.redirect(from);
+        const shortened = await Shortener.findOne({ where: { to: path } });
+        if (!shortened) return res.status(404).send({ message: '존재하지 않는 url 입니다 😭' });
+        
+        res.redirect(shortened.from);
     } catch (error) {
-        res.send(error)
+        res.send({ message: error.message });
     }
 }
 
@@ -28,14 +33,14 @@ const deleteShrotenedUrl = async (req, res) => {
     try {
         const { path } = req.params;
         const shorteneds = await Shortener.findAll({ where: { to: path } });
-        if (!shorteneds) return res.status(404);
+        if (!shorteneds) return res.status(404).send({ message: '존재하지 않는 url 입니다 😭' });
+
         for (const shortened of shorteneds) {
-            console.log(shortened)
             await Shortener.destroy({ where: { id: shortened.id } });
         };
         res.send({ message: 'Deleted' });
     } catch (error) {
-        res.send(error)
+        res.send({ message: error.message });
     }
 }
 
