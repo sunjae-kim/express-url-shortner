@@ -34,7 +34,7 @@ const deleteShrotenedUrl = async (req, res) => {
     try {
         const { path } = req.params;
         const shorteneds = await Shortener.findAll({ where: { to: path } });
-        if (!shorteneds) return res.status(404).send({ message: '존재하지 않는 url 입니다 😭' });
+        if (shorteneds.length === 0) return res.status(404).send({ message: '존재하지 않는 url 입니다 😭' });
 
         for (const shortened of shorteneds) {
             await Shortener.destroy({ where: { id: shortened.id } });

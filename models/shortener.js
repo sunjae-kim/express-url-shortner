@@ -4,11 +4,11 @@ export default (sequelize, DataTypes) => {
     'Shortener',
     {
       from: {
-        type: DataTypes.STRING,
+        type: DataTypes.TEXT,
         allowNull: false
       },
       to: {
-        type: DataTypes.TEXT,
+        type: DataTypes.STRING,
         allowNull: false
       },
       author: {
