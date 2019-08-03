@@ -3,6 +3,7 @@ import morgan from 'morgan';
 import helmet from 'helmet';
 import bodyParser from 'body-parser';
 import cors from 'cors';
+import { sequelize } from './models';
 import routes from './routes';
 
 const app = express();
@@ -31,6 +32,9 @@ app.get('/', (req, res) => {
 
 // connect route
 app.use('/', routes);
+
+// connect database
+sequelize.sync();
 
 // start server
 const PORT = process.env.PORT || 3000;
