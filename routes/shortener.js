@@ -6,13 +6,14 @@ const shortenUrl = async (req, res) => {
     try {
         const { value, error } = joi.validateUrl(req.body);
         if (error) return res.status(400).send(error);
-
+        
+        const hostUrl = process.env.SHORTENER_URL || req.get('host');
         const { to } = value
         const shortened = await Shortener.findOne({ where: { to } });
-        if (shortened) return res.status(409).send({ message: '이미 존재하는 url 입니다 😭' });
+        if (shortened) return res.status(409).send({ message: `이미 존재하는 url 입니다 😭 -> ${hostUrl}/${to}` });
 
         await Shortener.create(value);
-        res.send({ message: `${req.protocol}://${req.get('host')}/${to}` });
+        res.send({ message: `${hostUrl}/${to}` });
     } catch (error) {
         res.send({ message: error.message });
     }
