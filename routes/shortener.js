@@ -2,15 +2,30 @@ import Model from '../models';
 import { joi } from '../service';
 const { Shortener } = Model;
 
+const getUrlList = async (req, res) => {
+    try {
+        const { author } = req.query;
+        const query = { where : {} };
+        if (author) { query.where.author = author; }
+        
+        const hostUrl = process.env.SHORTENER_URL || req.get('host');
+        const urls = await Shortener.findAll(query);
+
+        res.send({ urls, hostUrl });
+    } catch (error) {
+        res.send({ message: error.message });
+    }
+}
+
 const shortenUrl = async (req, res) => {
     try {
         const { value, error } = joi.validateUrl(req.body);
         if (error) return res.status(400).send(error);
         
         const hostUrl = process.env.SHORTENER_URL || req.get('host');
-        const { to } = value
+        const { to } = value;
         const shortened = await Shortener.findOne({ where: { to } });
-        if (shortened) return res.status(409).send({ message: `이미 존재하는 url 입니다 😭 -> ${hostUrl}/${to}` });
+        if (shortened) return res.status(409).send({ message: `이미 존재하는 url 입니다 😭\n→ ${hostUrl}/${to}` });
 
         await Shortener.create(value);
         res.send({ message: `${hostUrl}/${to}` });
@@ -40,7 +55,7 @@ const deleteShrotenedUrl = async (req, res) => {
         for (const shortened of shorteneds) {
             await Shortener.destroy({ where: { id: shortened.id } });
         };
-        res.send({ message: 'Deleted' });
+        res.send({ message: '삭제되었습니다!' });
     } catch (error) {
         res.send({ message: error.message });
     }
@@ -50,4 +65,5 @@ export default {
     shortenUrl,
     toShortenedUrl,
     deleteShrotenedUrl,
+    getUrlList,
 };
